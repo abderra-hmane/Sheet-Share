@@ -15,3 +15,5 @@ buildNumber.properties
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+tokens/
+src/main/resources/credential.json
