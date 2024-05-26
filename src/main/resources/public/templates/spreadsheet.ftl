@@ -8,12 +8,6 @@
 </style>
 <div class="container">
 
-<form class="d-flex" action="/spreadSheet" method="get">
-    <input name="spreadSheetId" class="form-control mx-3" placeholder="ID ..." style="width:85%;">
-    <input type="submit" class="btn btn-primary" value="import "  style="width:10%;">
-</form>
-
-
  <#if data??>
 <div class="card text-center">
   <div class="card-header">

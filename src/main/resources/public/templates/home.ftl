@@ -44,8 +44,10 @@
     </div>
     <div class="row m-1 rounded spreadsheet-home overflow-hidden d-flex justify-content-center ">
         <div class="row row-link d-flex justify-content-between align-items-center">
-            <input name="spreadsheetId"  placeholder="ID...">
-            <button id ="spreadsheetId">Import</button>
+                <form class="d-flex" action="/spreadSheet" method="post">
+                    <input name="spreadSheetId" class="form-control mx-3" placeholder="ID ..." style="width:85%;">
+                    <input type="submit" class="btn btn-primary" value="import "  style="width:10%;">
+                </form>
         </div>
         <div class="row row-or px-5"> <div class="separator">or</div></div>
         <div class="row row-csv d-flex justify-content-center align-items-center ">

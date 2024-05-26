@@ -33,6 +33,6 @@ public class App extends Spark
         get("/",HomeController::index);
         get("/login",AuthController::login);
         get("/logout",AuthController::logOut);
-        get("/spreadSheet",SpreadSheetController::index);
+        post("/spreadSheet",SpreadSheetController::index);
     }
 }
