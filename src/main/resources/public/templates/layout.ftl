@@ -23,7 +23,7 @@
         <div class="menu pt-5">
             <ul class="nav nav-pills flex-column mb-auto">
               <li class="nav-item mb-2 px-2">
-                  <a href="#" class="nav-link active-item py-1" aria-current="page">
+                  <a href="home.ftl" class="nav-link active-item py-1" aria-current="page">
                       <i class=" fa-solid fa-house  bi me-2" width="16" height="16"></i>
                       Home
                   </a>
@@ -35,7 +35,7 @@
                   </a>
                 </li>
                 <li class="nav-item mb-2 px-2">
-                  <a href="#" class="nav-link  py-1">
+                  <a href="email.ftl" class="nav-link  py-1">
                        <i class=" fa-solid fa-envelope-open-text   bi me-2" width="16" height="16"></i>
                       Email
                   </a>
