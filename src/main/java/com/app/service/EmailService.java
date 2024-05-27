@@ -1,35 +1,58 @@
 package com.app.service;
 
+import com.google.api.services.gmail.Gmail;
+import com.google.api.services.gmail.model.Message;
+import com.app.api.GmailAPI;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Properties;
-import javax.mail.*;
-import javax.mail.internet.*;
+
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
+import org.apache.commons.codec.binary.Base64;
 
 public class EmailService {
-    
-    private final String username = "abderrahmanewinz@gmail.com";
-    private final String password = "loki88pog";
 
-    private Session getSession() {
+    private Gmail service;
+
+    public EmailService() throws GeneralSecurityException, IOException {
+        this.service = GmailAPI.getService();
+    }
+
+    public void sendEmail(String to, String subject, String bodyText) throws MessagingException, IOException {
+        MimeMessage email = createEmail(to, "me", subject, bodyText);
+        sendMessage(service, "me", email);
+    }
+
+    private static MimeMessage createEmail(String to, String from, String subject, String bodyText)
+            throws MessagingException {
         Properties props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.port", "587");
+        Session session = Session.getDefaultInstance(props, null);
 
-        return Session.getInstance(props, new javax.mail.Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(username, password);
-            }
-        });
+        MimeMessage email = new MimeMessage(session);
+
+        email.setFrom(new InternetAddress(from));
+        email.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress(to));
+        email.setSubject(subject);
+        email.setText(bodyText);
+        return email;
     }
 
-    public void sendEmail(String to, String subject, String content) throws MessagingException {
-        Message message = new MimeMessage(getSession());
-        message.setFrom(new InternetAddress(username));
-        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
-        message.setSubject(subject);
-        message.setText(content);
-
-        Transport.send(message);
+    private static void sendMessage(Gmail service, String userId, MimeMessage email)
+            throws MessagingException, IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        email.writeTo(buffer);
+        byte[] rawMessageBytes = buffer.toByteArray();
+        String encodedEmail = Base64.encodeBase64URLSafeString(rawMessageBytes);
+        Message message = new Message();
+        message.setRaw(encodedEmail);
+        service.users().messages().send(userId, message).execute();
     }
+
 }

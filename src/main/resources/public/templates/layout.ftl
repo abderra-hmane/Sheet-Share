@@ -35,7 +35,7 @@
                   </a>
                 </li>
                 <li class="nav-item mb-2 px-2">
-                  <a href="email.ftl" class="nav-link  py-1">
+                  <a href="email" class="nav-link  py-1">
                        <i class=" fa-solid fa-envelope-open-text   bi me-2" width="16" height="16"></i>
                       Email
                   </a>

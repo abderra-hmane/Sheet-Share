@@ -12,7 +12,7 @@ import spark.Request;
 import spark.Response;
 
 public class EmailController extends Controller {
-    public static String index(Request request, Response response) throws IOException, GeneralSecurityException{
+    public static String index(Request request, Response response) throws IOException, GeneralSecurityException {
         return render("email.ftl");
     }
 
@@ -27,22 +27,19 @@ public class EmailController extends Controller {
 
         data.forEach((sheetName, sheetData) -> {
             for (List<Object> row : sheetData) {
-                if (row.size() < 3) {
-                    continue; // Skip rows that don't have enough data
-                }
-
-                String studentName = (String) row.get(2); // Assuming name is in the first column
-                String studentEmail = (String) row.get(4); // Assuming email is in the second column
-                String grade = (String) row.get(5); // Assuming grade is in the third column
+                String studentName = (String) row.get(2); // Assuming name is in the third column
+                String studentEmail = (String) row.get(4); // Assuming email is in the fifth column
+                String grade = (String) row.get(5); // Assuming grade is in the sixth column
 
                 String subject = subjectTemplate.replace("{studentName}", studentName);
                 String body = bodyTemplate.replace("{studentName}", studentName).replace("{grade}", grade);
 
                 try {
                     emailService.sendEmail(studentEmail, subject, body);
-                } catch (MessagingException e) {
+                } catch (MessagingException | IOException e) {
                     e.printStackTrace();
                 }
+
             }
         });
 
