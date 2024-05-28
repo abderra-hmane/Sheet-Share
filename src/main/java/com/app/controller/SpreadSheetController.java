@@ -6,36 +6,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.app.api.OAuthAPI;
 import com.app.service.SpreadSheetService;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
 
 import spark.Request;
 import spark.Response;
 
 public class SpreadSheetController extends Controller {
-    public static String index(Request request,Response response) throws IOException,GeneralSecurityException{
-        Map<String,List<List<Object>>> values ;
-        if(request.session().attribute("spreadSheet")!=null){
+    public static String index(Request request, Response response) throws IOException, GeneralSecurityException {
+        Map<String, List<List<Object>>> values;
+        if (request.session().attribute("spreadSheet") != null) {
             values = request.session().attribute("spreadSheet");
-        }
-        else if(
-            request.queryParams("spreadSheetId")!=null && 
-            request.queryParams("spreadSheetId").length()!=0
-        ){
+        } else if (request.queryParams("spreadSheetId") != null &&
+                request.queryParams("spreadSheetId").length() != 0) {
             values = SpreadSheetService.getSheetsValues(request.queryParams("spreadSheetId"));
             request.session().attribute("spreadSheet", values);
 
-        }
-        else{
+        } else {
             return render("spreadsheet.ftl");
         }
-        
-        Map<String,Object> param = new HashMap<>();
+
+        Map<String, Object> param = new HashMap<>();
         param.put("data", values);
-        return render(param,"spreadsheet.ftl");
-        
+        return render(param, "spreadsheet.ftl");
 
     }
 }

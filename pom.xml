@@ -17,7 +17,7 @@
     <dependency>
       <groupId>com.sparkjava</groupId>
       <artifactId>spark-core</artifactId>
-      <version>2.9.4</version>
+      <version>2.9.3</version>
     </dependency>
     <dependency>
         <groupId>org.slf4j</groupId>
@@ -69,7 +69,16 @@
       <artifactId>google-api-services-people</artifactId>
       <version>v1-rev537-1.25.0</version>
     </dependency>
-  
+  <dependency>
+    <groupId>org.slf4j</groupId>
+    <artifactId>slf4j-api</artifactId>
+    <version>1.7.32</version>
+</dependency>
+<dependency>
+    <groupId>ch.qos.logback</groupId>
+    <artifactId>logback-classic</artifactId>
+    <version>1.2.3</version>
+</dependency>
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
