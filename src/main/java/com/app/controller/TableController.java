@@ -16,11 +16,15 @@ public class TableController extends Controller {
     private static final Logger logger = LoggerFactory.getLogger(TableController.class);
     private static Map<String, List<List<Object>>> existingTables = new HashMap<>();
 
-    // Renders the /tables page
     public static String index(Request request, Response response) {
         try {
+            // Ensure existingTables is in the session
+            if (request.session().attribute("existingTables") == null) {
+                request.session().attribute("existingTables", existingTables);
+            }
+
             Map<String, Object> model = new HashMap<>();
-            model.put("existingTables", existingTables);
+            model.put("existingTables", request.session().attribute("existingTables"));
             logger.info("Rendering tables.ftl with model: {}", model);
             return render(model, "tables.ftl");
         } catch (Exception e) {
@@ -30,7 +34,6 @@ public class TableController extends Controller {
         }
     }
 
-    // Handles form submission for creating a new table
     public static String createTable(Request request, Response response) {
         try {
             String tableName = request.queryParams("tableName");
@@ -45,6 +48,7 @@ public class TableController extends Controller {
 
             if (values != null) {
                 existingTables.put(tableName, values);
+                request.session().attribute("existingTables", existingTables);
                 logger.info("Table '{}' created successfully with data: {}", tableName, values);
             } else {
                 logger.warn("No data found for table '{}'", tableName);
