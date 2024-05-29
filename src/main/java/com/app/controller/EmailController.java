@@ -8,6 +8,7 @@ import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import javax.mail.MessagingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,30 +52,56 @@ public class EmailController extends Controller {
                 return "Selected table not found";
             }
 
-            List<List<Object>> tableData = existingTables.get(selectedTable);
+            List<List<Object>> emailTableData = existingTables.get(selectedTable);
             EmailService emailService = new EmailService();
 
-            for (List<Object> emailObject : tableData) {
-                String studentEmail = emailObject.get(0).toString();
+            // Email validation pattern
+            Pattern emailPattern = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z]{2,6}$",
+                    Pattern.CASE_INSENSITIVE);
 
-                // Skip invalid or placeholder email addresses
-                if ("Email".equalsIgnoreCase(studentEmail)) {
-                    System.out.println("Skipping placeholder email address");
+            // Loop through each row in the email table, starting from the second row (index
+            // 1)
+            for (int i = 0; i < emailTableData.size(); i++) {
+                List<Object> emailRow = emailTableData.get(i);
+                String studentEmail = emailRow.get(0).toString(); // Each row has only one element which is the email
+
+                // Validate email address
+                if (!emailPattern.matcher(studentEmail).matches()) {
+                    logger.info("Skipping invalid email address: {}", studentEmail);
                     continue;
                 }
 
                 // Log email address for debugging
-                System.out.println("Attempting to send email to: " + studentEmail);
+                logger.info("Attempting to send email to: {}", studentEmail);
 
-                // Replace placeholders with actual values
-                String subject = subjectTemplate.replace("{tableName}", selectedTable);
-                String body = bodyTemplate.replace("{tableName}", selectedTable);
+                // Initialize subject and body for this email
+                String subject = subjectTemplate;
+                String body = bodyTemplate;
+
+                // Iterate over all tables to replace placeholders
+                for (String tableName : existingTables.keySet()) {
+                    List<List<Object>> tableData = existingTables.get(tableName);
+
+                    // Ensure there are enough rows in the table
+                    if (i < tableData.size()) {
+                        List<Object> rowData = tableData.get(i);
+
+                        // Replace placeholders in the subject and body
+                        for (int j = 0; j < rowData.size(); j++) {
+                            String placeholder = "{" + tableName + "}";
+                            String replacement = rowData.get(j).toString();
+
+                            subject = subject.replace(placeholder, replacement);
+                            body = body.replace(placeholder, replacement);
+                        }
+                    }
+                }
 
                 // Send email
                 try {
                     emailService.sendEmail(studentEmail, subject, body);
                 } catch (MessagingException e) {
-                    System.err.println("Failed to send email to " + studentEmail + ": " + e.getMessage());
+                    logger.error("Failed to send email to {}: {}", studentEmail, e.getMessage());
                 }
             }
             response.redirect("/email"); // Redirect to the email form page after sending emails
