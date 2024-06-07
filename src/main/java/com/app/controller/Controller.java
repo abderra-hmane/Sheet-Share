@@ -1,14 +1,14 @@
 package com.app.controller;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import com.app.App;
-import com.app.service.AuthService;
+
 
 import freemarker.template.Configuration;
 import spark.ModelAndView;
+import spark.Request;
 import spark.template.freemarker.FreeMarkerEngine;
 
 public abstract class Controller {
@@ -18,14 +18,23 @@ public abstract class Controller {
         cfg.setClassForTemplateLoading(App.class, "/public/templates");
         return new FreeMarkerEngine(cfg);
     }
-    public static String render(Map<String,Object> param,String file)throws IOException,GeneralSecurityException{
 
-        param.putAll(AuthService.getUserInfo());
+    
+    public static String render(Request request,Map<String,Object> param,String file){
+        param.put("user",request.session().attribute("user"));  
         return FreeMarkerEngine().render(new ModelAndView(param, file));
     }
-    public static String render(String file)throws IOException,GeneralSecurityException{
-        Map<String,Object> param = new HashMap<>(AuthService.getUserInfo());
+
+
+    public static String render(Request request,String file){
+        Map<String,Object> param = new HashMap<>();
+        param.put("user",request.session().attribute("user"));
         return FreeMarkerEngine().render(new ModelAndView(param, file));
+    }
+
+
+    public void initRoutes() {
+
     }
 
 }

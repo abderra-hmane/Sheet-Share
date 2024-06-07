@@ -1,5 +1,5 @@
 package com.app.service;
 
-public class Service {
+public abstract class Service  {
     
 }

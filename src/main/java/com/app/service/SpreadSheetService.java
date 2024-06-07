@@ -6,45 +6,39 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.app.api.SpreadSheetAPI;
+import com.app.model.User;
+import com.app.util.GoogleUtilApi;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.Sheet;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.google.api.services.sheets.v4.model.ValueRange;
+import com.google.inject.Inject;
 
-public class SpreadSheetService {
+public class SpreadsheetService {
+    Sheets service ;
 
-    public static Map<String, List<List<Object>>> getSheetsValues(String id)
-            throws IOException, GeneralSecurityException {
-        Sheets service = SpreadSheetAPI.getService();
+    @Inject
+    public SpreadsheetService(GoogleUtilApi api) throws IOException,GeneralSecurityException{
+        this.service = api.getSheetsService();
+    }
 
-        Spreadsheet spreadsheet = service.spreadsheets().get(id).execute();
-        List<Sheet> sheets = spreadsheet.getSheets();
-        Map<String, List<List<Object>>> values = new HashMap<String, List<List<Object>>>();
-        for (Sheet sheet : sheets) {
+    public void addSpreadsheet(String id,User user) throws IOException{
+        Spreadsheet spreadsheet = this.service.spreadsheets().get(id).execute();
+        Map<String,List<List<Object>>> dataRange = new HashMap<>();
+        for(Sheet sheet :spreadsheet.getSheets()){
             String sheetName = sheet.getProperties().getTitle();
-            ValueRange response = service.spreadsheets().values().get(id, sheetName).execute();
-            values.put(sheetName, response.getValues());
+            ValueRange response = service.spreadsheets().values().get(id,sheetName ).execute();
+            
+            dataRange.put(sheetName,response.getValues());
+
         }
-        return values;
-
+        com.app.model.Spreadsheet spreadsheetModal = new com.app.model.Spreadsheet();
+        spreadsheetModal.setId(id);
+        spreadsheetModal.setData(dataRange);
+        spreadsheetModal.setName(spreadsheet.getProperties().getTitle());
+        user.getRepository().addSpreadsheet(spreadsheetModal);
+        
     }
 
-    public static Spreadsheet getSpreadsheet(String id) throws IOException, GeneralSecurityException {
-        Sheets service = SpreadSheetAPI.getService();
-
-        Spreadsheet spreadsheet = service.spreadsheets().get(id).execute();
-        return spreadsheet;
-
-    }
-
-    public static Sheet getSheet(Spreadsheet spreadsheet, String name) throws IOException, GeneralSecurityException {
-        for (Sheet sheet : spreadsheet.getSheets()) {
-            if (sheet.getProperties().getTitle().equals(name)) {
-                return sheet;
-            }
-        }
-        return null;
-    }
-
+    
 }

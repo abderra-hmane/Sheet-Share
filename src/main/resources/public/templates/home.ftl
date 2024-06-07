@@ -8,9 +8,9 @@
 
 
 <div class="container home-content row">
-    <div class="">
-    <div class="row m-1 mb-3 rounded logo-content  overflow-hidden">
-            <div class="row img-row p-5 ">
+    <div class="col-9 row gap-3">
+    <div class="row  rounded logo-content  overflow-hidden">
+            <div class="row img-row  ">
                 <img src="/imgs/home-logo.png" alt="Sheets&Share">
             </div>
             <div class="row dev-row px-3 ps-5 ">
@@ -42,12 +42,10 @@
             
             </div>
     </div>
-    <div class="row m-1 rounded spreadsheet-home overflow-hidden d-flex justify-content-center ">
+    <div class="row  rounded spreadsheet-home overflow-hidden d-flex justify-content-center ">
         <div class="row row-link d-flex justify-content-between align-items-center">
-                <form class="d-flex" action="/spreadSheet" method="post">
-                    <input name="spreadSheetId" class="form-control mx-3" placeholder="ID ..." style="width:85%;">
-                    <input type="submit" class="btn btn-primary" value="import "  style="width:10%;">
-                </form>
+            <input name="spreadsheetId" class="sheet-id"placeholder="ID...">
+            <button class="import-sheet-link" >Import</button>
         </div>
         <div class="row row-or px-5"> <div class="separator">or</div></div>
         <div class="row row-csv d-flex justify-content-center align-items-center ">
@@ -56,7 +54,7 @@
     
     </div>
     </div>
-    <div class="col-2 m-1 mb-3 rounded right-side-content"></div>
+    <div class="col-3  rounded right-side-content"></div>
 
 </div>
 <script src="/js/home.js"></script>

@@ -1,33 +1,42 @@
 package com.app.controller;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import com.app.service.SpreadSheetService;
+
+import java.io.IOException;
+
+import com.app.model.User;
+import com.app.service.SpreadsheetService;
+import com.google.inject.Inject;
 
 import spark.Request;
 import spark.Response;
+import spark.Spark;
 
-public class SpreadSheetController extends Controller {
-    public static String index(Request request, Response response) throws IOException, GeneralSecurityException {
-        Map<String, List<List<Object>>> values;
-        if (request.session().attribute("spreadSheet") != null) {
-            values = request.session().attribute("spreadSheet");
-        } else if (request.queryParams("spreadSheetId") != null &&
-                request.queryParams("spreadSheetId").length() != 0) {
-            values = SpreadSheetService.getSheetsValues(request.queryParams("spreadSheetId"));
-            request.session().attribute("spreadSheet", values);
+public class SpreadsheetController extends Controller{
 
-        } else {
-            return render("spreadsheet.ftl");
-        }
+    SpreadsheetService service ;
 
-        Map<String, Object> param = new HashMap<>();
-        param.put("data", values);
-        return render(param, "spreadsheet.ftl");
+    @Inject
+    public SpreadsheetController(SpreadsheetService spreadsheetService){
+        this.service = spreadsheetService;
+    }
+
+
+    @Override 
+    public void initRoutes(){
+        Spark.get("/spreadsheet", this::index);
+        Spark.get("/spreadsheet/addSpreadsheet",this::importSpreadsheet);
+    }
+
+    public String index(Request request ,Response response){
+        return render(request, "spreadsheet.ftl");
+    }
+
+    public Response importSpreadsheet(Request request, Response response) throws IOException{
+        String id = request.queryParams("spreadsheetId");
+        User user = request.session().attribute("user");
+        this.service.addSpreadsheet(id,user);
+        return response;
 
     }
 }

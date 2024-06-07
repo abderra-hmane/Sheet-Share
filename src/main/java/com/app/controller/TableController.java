@@ -1,70 +1,54 @@
 package com.app.controller;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import com.app.service.EmailService;
+import com.app.service.TableService;
+import com.google.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
+import spark.Spark;
 
-public class TableController extends Controller {
+public class TableController extends Controller{
 
-    private static final Logger logger = LoggerFactory.getLogger(TableController.class);
-    private static Map<String, List<List<Object>>> existingTables = new HashMap<>();
+    TableService service ;
 
-    public static String index(Request request, Response response) {
-        try {
-            // Ensure existingTables is in the session
-            if (request.session().attribute("existingTables") == null) {
-                request.session().attribute("existingTables", existingTables);
-            }
-
-            Map<String, Object> model = new HashMap<>();
-            model.put("existingTables", request.session().attribute("existingTables"));
-            logger.info("Rendering tables.ftl with model: {}", model);
-            return render(model, "tables.ftl");
-        } catch (Exception e) {
-            logger.error("Error rendering tables.ftl", e);
-            response.status(500);
-            return "Internal Server Error: " + e.getMessage();
-        }
+    @Inject
+    public TableController(TableService tableService){
+        this.service = tableService;
     }
 
-    public static String createTable(Request request, Response response) {
-        try {
-            String tableName = request.queryParams("tableName");
-            String spreadSheetId = request.queryParams("spreadSheetId");
-            String sheetName = request.queryParams("sheetName");
-            String range = request.queryParams("range");
 
-            logger.info("Creating table with name: {}, spreadsheet ID: {}, sheet name: {}, range: {}", tableName,
-                    spreadSheetId, sheetName, range);
-
-            List<List<Object>> values = EmailService.getSheetValues(spreadSheetId, sheetName, range);
-
-            if (values != null) {
-                existingTables.put(tableName, values);
-                request.session().attribute("existingTables", existingTables);
-                logger.info("Table '{}' created successfully with data: {}", tableName, values);
-            } else {
-                logger.warn("No data found for table '{}'", tableName);
-            }
-
-            // Redirect to /tables after processing the form
-            response.redirect("/tables");
-            return null;
-        } catch (Exception e) {
-            logger.error("Error creating table", e);
-            response.status(500);
-            return "Internal Server Error: " + e.getMessage();
-        }
+    @Override 
+    public void initRoutes(){
+        Spark.get("/table",this::index);
+        Spark.get("/creatTable",this::creatTable);
     }
 
-    public static Map<String, List<List<Object>>> getExistingTables() {
-        return existingTables;
+    public String index(Request request, Response response){
+        return render(request, "table.ftl");
+    }
+    public Response creatTable(Request request,Response response){
+
+        String spreadsheet = request.queryParams("spreadsheet");
+        String sheet = request.queryParams("sheet");
+        int start_row = Integer.parseInt(request.queryParams("start_row"));
+        int start_col = Integer.parseInt(request.queryParams("start_col"));
+        int end_row = Integer.parseInt(request.queryParams("end_row"));
+        int end_col = Integer.parseInt(request.queryParams("end_col"));
+        String table_name = request.queryParams("table_name");
+        List<String> Col_names = new ArrayList<>();
+        for(int i=start_col;i<=end_col;i++){
+            Col_names.add(request.queryParams("column_"+i));
+        }
+       
+
+         this.service.creatTable(request, table_name,spreadsheet, sheet, start_row, start_col, end_row, end_col, Col_names);
+
+
+
+        return response;
+
     }
 }
